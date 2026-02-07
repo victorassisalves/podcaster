@@ -1,6 +1,6 @@
 services:
   livekit:
-    image: livekit/livekit:v1.8.1
+    image: ghcr.io/livekit/livekit:v1.8.1
     command: --config /livekit.yaml
     volumes:
       - ./livekit.yaml:/livekit.yaml
