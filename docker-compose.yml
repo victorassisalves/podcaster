@@ -1,16 +1,4 @@
 services:
-  livekit:
-    image: ghcr.io/livekit/livekit:v1.8.1
-    command: --config /livekit.yaml
-    volumes:
-      - ./livekit.yaml:/livekit.yaml
-    ports:
-      - "7880:7880"
-      - "7881:7881/udp"
-    restart: always
-    networks:
-      - podcaster-network
-
   backend:
     image: podcaster-backend:latest
     build: ./backend
@@ -19,8 +7,6 @@ services:
       - ./google-creds.json:/app/google-creds.json
     ports:
       - "8000:8000"
-    depends_on:
-      - livekit
     networks:
       - podcaster-network
 
@@ -32,7 +18,6 @@ services:
     volumes:
       - ./google-creds.json:/app/google-creds.json
     depends_on:
-      - livekit
       - backend
     networks:
       - podcaster-network
