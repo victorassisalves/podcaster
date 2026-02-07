@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  livekit:
+    image: livekit/livekit:latest
+    command: --config /livekit.yaml
+    volumes:
+      - ./livekit.yaml:/livekit.yaml
+    ports:
+      - "7880:7880"
+      - "7881:7881/udp"
+    restart: always
+    networks:
+      - podcaster-network
+
+  backend:
+    build: ./backend
+    env_file: .env
+    volumes:
+      - ./google-creds.json:/app/google-creds.json
+    ports:
+      - "8000:8000"
+    depends_on:
+      - livekit
+    networks:
+      - podcaster-network
+
+  agent:
+    build: ./backend
+    command: python3 -m src.agents.podcast_agent dev
+    env_file: .env
+    volumes:
+      - ./google-creds.json:/app/google-creds.json
+    depends_on:
+      - livekit
+      - backend
+    networks:
+      - podcaster-network
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_LIVEKIT_URL=${NEXT_PUBLIC_LIVEKIT_URL}
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - backend
+    networks:
+      - podcaster-network
+
+networks:
+  podcaster-network:
+    driver: bridge
