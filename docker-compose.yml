@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   livekit:
-    image: livekit/livekit:latest
+    image: livekit/livekit:v1.8.1
     command: --config /livekit.yaml
     volumes:
       - ./livekit.yaml:/livekit.yaml
@@ -14,6 +12,7 @@ services:
       - podcaster-network
 
   backend:
+    image: podcaster-backend:latest
     build: ./backend
     env_file: .env
     volumes:
@@ -26,6 +25,7 @@ services:
       - podcaster-network
 
   agent:
+    image: podcaster-agent:latest
     build: ./backend
     command: python3 -m src.agents.podcast_agent dev
     env_file: .env
@@ -38,6 +38,7 @@ services:
       - podcaster-network
 
   frontend:
+    image: podcaster-frontend:latest
     build:
       context: ./frontend
       args:
