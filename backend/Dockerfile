@@ -3,6 +3,8 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY pyproject.toml .
+# Copy src directory so setuptools can find the package during installation
+COPY src ./src
 RUN pip install .
 
 COPY . .
