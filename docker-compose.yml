@@ -1,0 +1,42 @@
+services:
+  backend:
+    image: podcaster-backend:latest
+    build: ./backend
+    env_file: .env
+    volumes:
+      - ./google-creds.json:/app/google-creds.json
+    ports:
+      - "8000:8000"
+    networks:
+      - podcaster-network
+
+  agent:
+    image: podcaster-agent:latest
+    build: ./backend
+    command: python3 -m src.agents.podcast_agent dev
+    env_file: .env
+    volumes:
+      - ./google-creds.json:/app/google-creds.json
+    depends_on:
+      - backend
+    networks:
+      - podcaster-network
+
+  frontend:
+    image: podcaster-frontend:latest
+    build:
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_LIVEKIT_URL=${NEXT_PUBLIC_LIVEKIT_URL}
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - backend
+    networks:
+      - podcaster-network
+
+networks:
+  podcaster-network:
+    driver: bridge

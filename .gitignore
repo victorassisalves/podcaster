@@ -1,0 +1,10 @@
+node_modules/
+.next/
+dist/
+build/
+*.log
+.env
+google-creds.json
+__pycache__/
+*.pyc
+.DS_Store
