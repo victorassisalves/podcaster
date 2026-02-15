@@ -8,3 +8,11 @@
 ## Domain
 - **Podcast Workflow**: The workflow involves distinct stages: Configuration -> Research -> Script Generation -> Review -> Recording. Separating these stages in the UI (Wizard pattern) improves UX significantly.
 - **Agent Roles**: Defining agent roles (Host, Guest, etc.) *before* script generation allows the LLM to write more specific and character-driven scripts.
+
+## Frontend Theme
+- **MUI with Next.js App Router**: When using MUI with App Router, a client-side  is required to wrap the children in . This registry must handle  and  to prevent FOUC and ensure styles are injected correctly.
+- **Dark Mode**: Explicitly setting  in the theme palette ensures all MUI components (TextFields, Cards, Typography) adapt their colors for high contrast against a dark background. Removing manual CSS backgrounds and relying on  is the correct approach.
+
+## Frontend Theme
+- **MUI with Next.js App Router**: When using MUI with App Router, a client-side `ThemeRegistry` is required to wrap the children in `layout.tsx`. This registry must handle `EmotionCache` and `ThemeProvider` to prevent FOUC and ensure styles are injected correctly.
+- **Dark Mode**: Explicitly setting `mode: 'dark'` in the theme palette ensures all MUI components (TextFields, Cards, Typography) adapt their colors for high contrast against a dark background. Removing manual CSS backgrounds and relying on `CssBaseline` is the correct approach.
