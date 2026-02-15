@@ -21,6 +21,9 @@ ENV NEXT_PUBLIC_LIVEKIT_URL=$NEXT_PUBLIC_LIVEKIT_URL
 # Build the application
 RUN npm run build
 
+# Ensure public directory exists
+RUN mkdir -p public
+
 # Production image
 FROM node:18-slim AS runner
 
