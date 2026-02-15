@@ -1,4 +1,4 @@
-from typing import TypedDict, List, Optional
+from typing import TypedDict, List, Optional, Any
 from langgraph.graph import StateGraph, END
 from google import genai
 from google.genai import types
@@ -7,6 +7,9 @@ import json
 
 class State(TypedDict):
     theme: str
+    duration: Optional[int]
+    tone: Optional[str]
+    agent_profiles: Optional[List[dict]]
     research_report: Optional[str]
     script_outline: Optional[dict]
     errors: List[str]
@@ -19,7 +22,8 @@ def research_node(state: State):
     client = genai.Client(api_key=api_key)
     try:
         model_id = "deep-research-pro-preview-12-2025"
-        prompt = f"Perform deep research on the following podcast theme: {state['theme']}. "                  f"Provide a detailed report including key facts, recent news, and interesting angles."
+        prompt = f"Perform deep research on the following podcast theme: {state['theme']}. " \
+                 f"Provide a detailed report including key facts, recent news, and interesting angles."
 
         # Using the Interactions API for Deep Research
         interaction = client.interactions.create(
@@ -58,7 +62,20 @@ def scriptwriter_node(state: State):
     try:
         model_id = "gemini-2.0-flash"
 
-        prompt = f"Based on this research: {state['research_report']}, create a structured podcast script outline. "                  f"Include: duration, topics to approach, topics to avoid, specific questions, and guest roles."                  f"Format the output as a JSON object with keys: duration, topics_to_approach, topics_to_avoid, questions, roles."
+        duration = state.get("duration", 15)
+        tone = state.get("tone", "engaging")
+        agents = state.get("agent_profiles", [])
+
+        roles_desc = ""
+        if agents:
+            roles_desc = " The hosts are: " + ", ".join([f"{a.get('name', 'Host')} ({a.get('role', 'Host')}, {a.get('personality', 'Standard')})" for a in agents])
+        else:
+            roles_desc = " Define suitable host roles."
+
+        prompt = f"Based on this research: {state['research_report']}, create a structured podcast script outline. " \
+                 f"Target duration: {duration} minutes. Tone: {tone}.{roles_desc} " \
+                 f"Include: duration, topics to approach, topics to avoid, specific questions, and guest/host roles." \
+                 f"Format the output as a JSON object with keys: duration, topics_to_approach, topics_to_avoid, questions, roles."
 
         response = client.models.generate_content(
             model=model_id,
