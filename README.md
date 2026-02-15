@@ -16,3 +16,27 @@ A multi-agent live podcast platform hosted on GCP.
 
 ## Getting Started
 See `infra/DEPLOYMENT.md` for setup and deployment instructions.
+
+## Docker Development (Offline/Local)
+To run the entire stack locally using Docker:
+
+1.  **Prerequisites**:
+    *   Docker and Docker Compose installed.
+    *   `google-creds.json` in the project root (if using Google Cloud services).
+    *   `local.env` or `.env` file created from `.env.example`.
+
+2.  **Setup**:
+    ```bash
+    cp .env.example .env
+    # Fill in your credentials in .env
+    ```
+
+3.  **Run**:
+    ```bash
+    docker-compose up --build
+    ```
+
+    *   Backend API: http://localhost:8000
+    *   Frontend: http://localhost:3000
+
+    The backend code is mounted from `./backend`, so changes will reload automatically.
