@@ -2,7 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background: #111;
-  color: #fff;
+/* Custom scrollbar for logs */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }

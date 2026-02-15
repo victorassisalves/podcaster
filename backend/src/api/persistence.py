@@ -2,6 +2,7 @@ from google.cloud import firestore
 import os
 from typing import List, Optional, Dict
 from pydantic import BaseModel
+import uuid
 
 class AgentProfile(BaseModel):
     id: str
@@ -22,6 +23,11 @@ class Episode(BaseModel):
 class PersistenceManager:
     def __init__(self):
         self.db = None
+        self._mock_agents: List[AgentProfile] = [
+            AgentProfile(id="1", name="Alex", role="Host", personality="Friendly and inquisitive", voice_id="Puck"),
+            AgentProfile(id="2", name="Jordan", role="Tech Expert", personality="Analytical and deep-diving", voice_id="Charley"),
+            AgentProfile(id="3", name="Sam", role="Skeptic", personality="Questioning and critical", voice_id="Stevie")
+        ]
         if os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
             try:
                 self.db = firestore.Client()
@@ -30,17 +36,18 @@ class PersistenceManager:
 
     def get_agents(self) -> List[AgentProfile]:
         if not self.db:
-            return [
-                AgentProfile(id="1", name="Alex", role="Host", personality="Friendly and inquisitive", voice_id="Puck"),
-                AgentProfile(id="2", name="Jordan", role="Tech Expert", personality="Analytical and deep-diving", voice_id="Charley"),
-                AgentProfile(id="3", name="Sam", role="Skeptic", personality="Questioning and critical", voice_id="Stevie")
-            ]
+            return self._mock_agents
 
         docs = self.db.collection("agents").stream()
-        return [AgentProfile(**doc.to_dict(), id=doc.id) for doc in docs]
+        agents = [AgentProfile(**doc.to_dict(), id=doc.id) for doc in docs]
+        return agents if agents else self._mock_agents
 
     def save_agent(self, agent: AgentProfile):
-        if not self.db: return
+        if not self.db:
+            # In mock mode, we append to the list if not exists
+            if not any(a.id == agent.id for a in self._mock_agents):
+                self._mock_agents.append(agent)
+            return
         self.db.collection("agents").document(agent.id).set(agent.dict())
 
     def get_episode(self, episode_id: str) -> Optional[Episode]:
