@@ -4,10 +4,11 @@ import {
   Box, Stepper, Step, StepLabel, Button, Typography,
   TextField, Slider, Select, MenuItem, FormControl, InputLabel,
   Card, CardContent, CardActions, Checkbox, FormGroup, FormControlLabel,
-  LinearProgress, Paper, Grid, Chip, Stack, Alert
+  LinearProgress, Paper, Grid, Chip, Stack, Alert,
+  Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { Mic, AutoAwesome, Description, Settings } from '@mui/icons-material';
+import { Mic, AutoAwesome, Description, Settings, Add, Person } from '@mui/icons-material';
 
 // Interfaces
 interface Agent {
@@ -27,6 +28,7 @@ interface ScriptOutline {
 }
 
 const steps = ['Configuration', 'Research & Script', 'Review', 'Studio'];
+const GOOGLE_VOICES = ["Puck", "Charley", "Aoede", "Fenrir", "Kore"];
 
 export default function PodcastWizard() {
   const [activeStep, setActiveStep] = useState(0);
@@ -38,6 +40,10 @@ export default function PodcastWizard() {
   const [tone, setTone] = useState('engaging');
   const [selectedAgentIds, setSelectedAgentIds] = useState<string[]>([]);
 
+  // Agent Creation State
+  const [openAgentModal, setOpenAgentModal] = useState(false);
+  const [newAgent, setNewAgent] = useState({ name: '', role: 'Guest', personality: '', voice_id: 'Puck' });
+
   // Generation State
   const [isGenerating, setIsGenerating] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
@@ -47,12 +53,15 @@ export default function PodcastWizard() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    // Fetch agents
+  const fetchAgents = () => {
     fetch('http://localhost:8000/api/agents')
       .then(res => res.json())
       .then(data => setAgents(data))
       .catch(err => console.error("Failed to fetch agents", err));
+  };
+
+  useEffect(() => {
+    fetchAgents();
   }, []);
 
   // Scroll logs
@@ -62,6 +71,23 @@ export default function PodcastWizard() {
 
   const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
+
+  const handleCreateAgent = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/api/agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newAgent)
+      });
+      if (res.ok) {
+        setOpenAgentModal(false);
+        fetchAgents();
+        setNewAgent({ name: '', role: 'Guest', personality: '', voice_id: 'Puck' });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const startGeneration = async () => {
     setIsGenerating(true);
@@ -92,9 +118,6 @@ export default function PodcastWizard() {
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
-        // Keep the last partial line in buffer if it doesn't end with newline
-        // Actually, split includes empty string at end if trailing newline
-        // We handle buffer logic simply:
         buffer = lines.pop() || '';
 
         for (const line of lines) {
@@ -125,7 +148,6 @@ export default function PodcastWizard() {
   };
 
   const handleEnterStudio = () => {
-    // Generate a room name based on theme or random
     const roomName = theme.replace(/\s+/g, '-').toLowerCase() || 'studio-1';
     router.push(`/room/${roomName}`);
   };
@@ -163,14 +185,21 @@ export default function PodcastWizard() {
         </Grid>
       </Grid>
 
-      <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>Select Agents</Typography>
+      <Box sx={{ mt: 6, mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6">Select Agents</Typography>
+        <Button startIcon={<Add />} onClick={() => setOpenAgentModal(true)}>
+          Add Agent
+        </Button>
+      </Box>
+
       <Grid container spacing={2}>
         {agents.map(agent => (
           <Grid size={{ xs: 12, sm: 4 }} key={agent.id}>
             <Card variant={selectedAgentIds.includes(agent.id) ? "outlined" : "elevation"}
                   sx={{
-                    border: selectedAgentIds.includes(agent.id) ? '2px solid #1976d2' : '1px solid #ddd',
-                    cursor: 'pointer'
+                    border: selectedAgentIds.includes(agent.id) ? '2px solid #90caf9' : '1px solid #333',
+                    cursor: 'pointer',
+                    bgcolor: 'background.paper'
                   }}
                   onClick={() => {
                     setSelectedAgentIds(prev =>
@@ -179,9 +208,15 @@ export default function PodcastWizard() {
                   }}
             >
               <CardContent>
-                <Typography variant="h6">{agent.name}</Typography>
-                <Typography color="textSecondary" variant="body2">{agent.role}</Typography>
-                <Typography variant="caption" display="block">{agent.personality}</Typography>
+                <Box display="flex" alignItems="center" gap={1} mb={1}>
+                  <Person fontSize="small" color="primary" />
+                  <Typography variant="h6">{agent.name}</Typography>
+                </Box>
+                <Chip label={agent.role} size="small" sx={{ mb: 1, mr: 1 }} />
+                <Chip label={agent.voice_id} size="small" variant="outlined" sx={{ mb: 1 }} />
+                <Typography variant="caption" display="block" color="text.secondary">
+                  {agent.personality}
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -199,6 +234,51 @@ export default function PodcastWizard() {
           Start Magic
         </Button>
       </Box>
+
+      {/* Add Agent Modal */}
+      <Dialog open={openAgentModal} onClose={() => setOpenAgentModal(false)}>
+        <DialogTitle>Add New Agent</DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ mt: 1, minWidth: 300 }}>
+            <TextField
+              label="Name" fullWidth
+              value={newAgent.name}
+              onChange={(e) => setNewAgent({...newAgent, name: e.target.value})}
+            />
+             <FormControl fullWidth>
+              <InputLabel>Role</InputLabel>
+              <Select
+                value={newAgent.role} label="Role"
+                onChange={(e) => setNewAgent({...newAgent, role: e.target.value})}
+              >
+                <MenuItem value="Host">Host</MenuItem>
+                <MenuItem value="Guest">Guest</MenuItem>
+                <MenuItem value="Expert">Expert</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              label="Personality" fullWidth multiline rows={2}
+              value={newAgent.personality}
+              onChange={(e) => setNewAgent({...newAgent, personality: e.target.value})}
+            />
+            <FormControl fullWidth>
+              <InputLabel>Voice</InputLabel>
+              <Select
+                value={newAgent.voice_id} label="Voice"
+                onChange={(e) => setNewAgent({...newAgent, voice_id: e.target.value})}
+              >
+                {GOOGLE_VOICES.map(voice => (
+                  <MenuItem key={voice} value={voice}>{voice}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAgentModal(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreateAgent} disabled={!newAgent.name}>Create</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 

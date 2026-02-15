@@ -17,6 +17,12 @@ class ResearchRequest(BaseModel):
     tone: str = "engaging"
     agent_ids: List[str] = []
 
+class AgentCreateRequest(BaseModel):
+    name: str
+    role: str
+    personality: str
+    voice_id: str
+
 @router.post("/research")
 async def start_research(request: ResearchRequest):
     # Resolve agent ids to profiles
@@ -66,6 +72,18 @@ async def start_research(request: ResearchRequest):
 @router.get("/agents")
 async def get_agents():
     return persistence.get_agents()
+
+@router.post("/agents")
+async def create_agent(request: AgentCreateRequest):
+    new_agent = AgentProfile(
+        id=str(uuid.uuid4()),
+        name=request.name,
+        role=request.role,
+        personality=request.personality,
+        voice_id=request.voice_id
+    )
+    persistence.save_agent(new_agent)
+    return new_agent
 
 @router.post("/episodes")
 async def create_episode(theme: str):

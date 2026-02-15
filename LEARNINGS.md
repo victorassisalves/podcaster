@@ -16,3 +16,11 @@
 ## Frontend Theme
 - **MUI with Next.js App Router**: When using MUI with App Router, a client-side `ThemeRegistry` is required to wrap the children in `layout.tsx`. This registry must handle `EmotionCache` and `ThemeProvider` to prevent FOUC and ensure styles are injected correctly.
 - **Dark Mode**: Explicitly setting `mode: 'dark'` in the theme palette ensures all MUI components (TextFields, Cards, Typography) adapt their colors for high contrast against a dark background. Removing manual CSS backgrounds and relying on `CssBaseline` is the correct approach.
+
+## Agent Management
+- **Mock Persistence Strategy**: When using mock persistence (in-memory lists), modifying the list inside the class instance () works for the lifespan of the server process. However, this data is lost on restart. For a real app, Firestore or a local JSON file is needed.
+- **Frontend Dialogs**: Using , , , and  provides a clean UX for forms without navigating away from the main wizard flow.
+
+## Agent Management
+- **Mock Persistence Strategy**: When using mock persistence (in-memory lists), modifying the list inside the class instance (`self._mock_agents`) works for the lifespan of the server process. However, this data is lost on restart. For a real app, Firestore or a local JSON file is needed.
+- **Frontend Dialogs**: Using `Dialog`, `DialogTitle`, `DialogContent`, and `DialogActions` provides a clean UX for forms without navigating away from the main wizard flow.
