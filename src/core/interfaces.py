@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import Optional, List, Any, AsyncIterator
 from .domain import TopicGraph, TopicNode
 
 class StateStore(ABC):
@@ -24,6 +24,16 @@ class StateStore(ABC):
 
     @abstractmethod
     async def release_talking_stick(self, agent_id: str) -> None:
+        pass
+
+    @abstractmethod
+    async def publish_event(self, channel: str, message: dict) -> None:
+        """Publish a message to a channel."""
+        pass
+
+    @abstractmethod
+    async def subscribe_to_channel(self, channel: str) -> Any:
+        """Subscribe to a channel and return a listener."""
         pass
 
 class LlmProvider(ABC):

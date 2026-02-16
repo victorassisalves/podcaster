@@ -13,6 +13,7 @@ dependencies = [
     "google-cloud-storage",
     "pydantic",
     "redis>=5.0.0",
+    "google-adk>=1.25.0",
 ]
 
 [tool.setuptools.packages.find]

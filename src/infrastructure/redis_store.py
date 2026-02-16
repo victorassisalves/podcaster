@@ -1,6 +1,6 @@
 import redis.asyncio as redis
 import json
-from typing import Optional
+from typing import Optional, Any
 from ..core.domain import TopicGraph
 from ..core.interfaces import StateStore
 
@@ -46,3 +46,13 @@ class RedisStateStore(StateStore):
         end
         """
         await self.client.eval(script, 1, self.stick_key, agent_id)
+
+    async def publish_event(self, channel: str, message: dict) -> None:
+        """Publish a message to a channel."""
+        await self.client.publish(channel, json.dumps(message))
+
+    async def subscribe_to_channel(self, channel: str) -> Any:
+        """Subscribe to a channel and return a listener."""
+        pubsub = self.client.pubsub()
+        await pubsub.subscribe(channel)
+        return pubsub
