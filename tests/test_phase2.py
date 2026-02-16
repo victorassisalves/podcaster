@@ -32,6 +32,10 @@ class MockStateStore(StateStore):
     async def subscribe_to_channel(self, channel: str):
         pass
 
+    async def add_to_stream(self, stream_key: str, fields: dict) -> str:
+        return "mock-id"
+        pass
+
 # Dummy Agent to bypass strict initialization
 class DummyAgent:
     def __init__(self, state_store):

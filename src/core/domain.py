@@ -23,6 +23,9 @@ class ResearchSummary(BaseModel):
     primary_sources: List[str] = Field(..., description="URLs or names of primary sources")
 
 class HostPersona(BaseModel):
+    voice_settings: dict = Field(default_factory=dict, description="Voice settings for TTS (stability, clarity, etc.)")
+    interaction_rules: List[str] = Field(default_factory=list, description="Stylistic interaction rules")
+    a2a_id: str = Field(..., description="Unique identifier for A2A discovery")
     id: str = Field(..., description="Unique identifier for the host")
     name: str = Field(..., description="Name of the host")
     voice_id: str = Field(..., description="Voice ID for TTS")

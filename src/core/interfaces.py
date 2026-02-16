@@ -32,6 +32,11 @@ class StateStore(ABC):
         pass
 
     @abstractmethod
+    @abstractmethod
+    async def add_to_stream(self, stream_key: str, fields: dict) -> str:
+        """Add a message to a Redis Stream. Returns the message ID."""
+        pass
+
     async def subscribe_to_channel(self, channel: str) -> Any:
         """Subscribe to a channel and return a listener."""
         pass
