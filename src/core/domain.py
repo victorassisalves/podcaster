@@ -7,10 +7,20 @@ class TopicNode(BaseModel):
     content: str = Field(..., description="Detailed content or key facts for this topic")
     metadata: Optional[dict] = Field(default_factory=dict, description="Additional metadata")
 
+class TopicEdge(BaseModel):
+    source_id: str = Field(..., description="ID of the source node")
+    target_id: str = Field(..., description="ID of the target node")
+    condition: Optional[str] = Field(None, description="Condition for traversing this edge (e.g., 'sentiment == skeptical')")
+
 class TopicGraph(BaseModel):
     nodes: List[TopicNode] = Field(..., description="List of topic nodes")
-    edges: List[Any] = Field(default_factory=list, description="Connections between nodes (optional for now)")
+    edges: List[TopicEdge] = Field(default_factory=list, description="Connections between nodes")
     current_node_id: Optional[str] = Field(None, description="The ID of the currently active topic")
+
+class ResearchSummary(BaseModel):
+    key_facts: List[str] = Field(..., description="List of key facts extracted from research")
+    conflicting_views: List[str] = Field(..., description="Points of disagreement or conflict")
+    primary_sources: List[str] = Field(..., description="URLs or names of primary sources")
 
 class HostPersona(BaseModel):
     id: str = Field(..., description="Unique identifier for the host")
