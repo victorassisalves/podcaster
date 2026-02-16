@@ -14,3 +14,11 @@
 - **Cloud Run** is excellent for stateless APIs and the Next.js frontend.
 - **Compute Engine** is preferred for the LiveKit server POC to ensure consistent network performance for WebRTC.
 - **Firestore** provides a lightweight way to manage agent profiles and episode state.
+- **Pydantic Inheritance:** When inheriting from a Pydantic model (like  -> ), new fields must be declared as type hints in the subclass to be recognized as fields. Passing them to  works if they are valid fields on the parent or subclass.
+- **Redis Streams:** Use  for adding to streams. It returns the message ID.
+- **Async GenAI Client:** The  library's  methods like  are synchronous by default and should be run in a thread executor () to avoid blocking the asyncio event loop.
+- **A2A Discovery:**  requires an  with specific fields.  is required but can be empty.
+- **Pydantic Inheritance:** When inheriting from a Pydantic model (like `BaseAgent` -> `LlmAgent`), new fields must be declared as type hints in the subclass to be recognized as fields. Passing them to `super().__init__` works if they are valid fields on the parent or subclass.
+- **Redis Streams:** Use `xadd` for adding to streams. It returns the message ID.
+- **Async GenAI Client:** The `google-genai` library's `Client` methods like `generate_content` are synchronous by default and should be run in a thread executor (`asyncio.to_thread`) to avoid blocking the asyncio event loop.
+- **A2A Discovery:** `to_a2a` requires an `AgentCard` with specific fields. `AgentCapabilities` is required but can be empty.

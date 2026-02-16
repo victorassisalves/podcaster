@@ -51,6 +51,11 @@ class RedisStateStore(StateStore):
         """Publish a message to a channel."""
         await self.client.publish(channel, json.dumps(message))
 
+    async def add_to_stream(self, stream_key: str, fields: dict) -> str:
+        """Add a message to a Redis Stream."""
+        # xadd returns the message ID as a string
+        return await self.client.xadd(stream_key, fields)
+
     async def subscribe_to_channel(self, channel: str) -> Any:
         """Subscribe to a channel and return a listener."""
         pubsub = self.client.pubsub()
