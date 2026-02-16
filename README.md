@@ -1,42 +1,49 @@
-# Podcaster AI
+# Podcaster 360
 
 A multi-agent live podcast platform hosted on GCP.
 
-## Features
-- **Deep Research**: Uses Gemini 2.0 Deep Research to generate comprehensive podcast scripts.
-- **Multi-Agent Orchestration**: LangGraph-powered workflows for pre-production and LiveKit for real-time interaction.
-- **Live Interaction**: Real-time WebRTC audio with AI agents and human participants.
-- **Realistic Voices**: Integrated with Google TTS (Journey voices) and Gemini Live API.
-- **Recording**: Automated recording via LiveKit Egress to Google Cloud Storage.
+## Overview
+Podcaster 360 is a "Hybrid Agentic Swarm" where autonomous AI agents research topics, plan episodes, and improvise dialogue in real-time. It moves beyond static text-to-speech scripts to dynamic, interruptible conversations.
 
-## Project Structure
-- `backend/`: Python FastAPI, LangGraph, and LiveKit Agents.
-- `frontend/`: Next.js dashboard and live room.
-- `infra/`: Deployment instructions for GCP.
+## Documentation
 
-## Getting Started
-See `infra/DEPLOYMENT.md` for setup and deployment instructions.
+We have moved our documentation to the `docs/` directory for better organization.
 
-## Docker Development (Offline/Local)
-To run the entire stack locally using Docker:
+### 🏗 Architecture
+*   [Swarm Logic & Pub/Sub](docs/architecture/swarm-logic.md)
+*   [Shell & Soul Pattern](docs/architecture/shell-and-soul.md)
+*   [Hexagonal Architecture](docs/architecture/hexagonal.md)
+*   [Interruption Handling](docs/architecture/interruption-handling.md)
+*   [A2A Manifests](docs/architecture/a2a-manifests.md)
+*   [Failure Modes](docs/architecture/failure-modes.md)
 
-1.  **Prerequisites**:
-    *   Docker and Docker Compose installed.
-    *   `google-creds.json` in the project root (if using Google Cloud services).
-    *   `local.env` or `.env` file created from `.env.example`.
+### 🚀 Setup
+*   [Local Development Guide](docs/setup/local-dev.md) (Prerequisites, LiveKit CLI, Python)
+*   [Docker Guide](docs/setup/docker-guide.md) (Compose, Troubleshooting)
 
-2.  **Setup**:
+### ☁️ Deployment
+*   [GCP Cloud Run](docs/deployment/gcp-cloud-run.md)
+*   [Local Production Simulation](docs/deployment/local-prod-sim.md)
+
+### 🤖 Agents
+*   [Producer Agent](docs/agents/producer.md) (The "Brain")
+*   [Host Engine](docs/agents/host-engine.md) (The "Body")
+
+## Quick Start (Local Docker)
+
+1.  **Clone & Configure:**
     ```bash
     cp .env.example .env
-    # Fill in your credentials in .env
+    # Fill in API keys
     ```
 
-3.  **Run**:
+2.  **Run:**
     ```bash
     docker-compose up --build
     ```
 
-    *   Backend API: http://localhost:8000
-    *   Frontend: http://localhost:3000
+3.  **Access:**
+    *   **Frontend:** http://localhost:3000
+    *   **Backend:** http://localhost:8000
 
-    The backend code is mounted from `./backend`, so changes will reload automatically.
+See [docs/setup/docker-guide.md](docs/setup/docker-guide.md) for details.
