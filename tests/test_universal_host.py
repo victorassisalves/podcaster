@@ -1,8 +1,40 @@
+import sys
 import pytest
 import json
 import asyncio
 import os
 from unittest.mock import MagicMock, AsyncMock, patch
+
+# Define a mock LlmAgent class that behaves like a Pydantic model
+class MockLlmAgent:
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+# Mock external dependencies BEFORE importing app code
+sys.modules["livekit"] = MagicMock()
+sys.modules["livekit.rtc"] = MagicMock()
+sys.modules["livekit.api"] = MagicMock()
+sys.modules["livekit.plugins"] = MagicMock()
+sys.modules["livekit.plugins.silero"] = MagicMock()
+sys.modules["livekit.agents"] = MagicMock()
+sys.modules["livekit.agents.vad"] = MagicMock()
+sys.modules["google.adk"] = MagicMock()
+# sys.modules["google.adk.agents"] = MagicMock() # Don't mock whole module
+sys.modules["google.adk.runners"] = MagicMock()
+sys.modules["google.adk.events"] = MagicMock()
+sys.modules["google.adk.agents.live_request_queue"] = MagicMock()
+sys.modules["google.adk.agents.run_config"] = MagicMock()
+sys.modules["google.genai"] = MagicMock()
+sys.modules["google.genai.types"] = MagicMock()
+
+# Manually mock google.adk.agents
+adk_agents = MagicMock()
+adk_agents.LlmAgent = MockLlmAgent
+adk_agents.Agent = MagicMock()
+sys.modules["google.adk.agents"] = adk_agents
+
+# Import after mocks
 from src.core.domain import HostPersona, TopicGraph, TopicNode
 from src.infrastructure.redis_store import RedisStateStore
 from src.agents.universal_host.engine import UniversalHostAgent
@@ -70,11 +102,13 @@ async def test_agent_initialization(store):
         }):
             with patch("os.path.exists", return_value=True):
                 with patch("google.genai.Client") as MockGenClient:
-                    # Set a dummy API key in env just in case, or rely on Mock
-                    with patch.dict(os.environ, {"GOOGLE_API_KEY": "dummy"}):
-                         agent = UniversalHostAgent("test_agent", "host_sascha", store)
-                         assert agent.persona.name == "Sascha"
-                         MockGenClient.assert_called()
+                    # Mock LiveKitAdapter to avoid real instantiation
+                    with patch("src.agents.universal_host.engine.LiveKitAdapter") as MockAdapter:
+                         # Set a dummy API key in env just in case, or rely on Mock
+                         with patch.dict(os.environ, {"GOOGLE_API_KEY": "dummy"}):
+                              agent = UniversalHostAgent("test_agent", "host_sascha", store)
+                              assert agent.persona.name == "Sascha"
+                              MockAdapter.assert_called()
 
 @pytest.mark.asyncio
 async def test_acquire_talking_stick(store, mock_redis):

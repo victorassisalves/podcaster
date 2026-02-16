@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List, Any, AsyncIterator
+from typing import Optional, List, Any, AsyncIterator, Callable
 from .domain import TopicGraph, TopicNode
 
 class StateStore(ABC):
@@ -32,11 +32,11 @@ class StateStore(ABC):
         pass
 
     @abstractmethod
-    @abstractmethod
     async def add_to_stream(self, stream_key: str, fields: dict) -> str:
         """Add a message to a Redis Stream. Returns the message ID."""
         pass
 
+    @abstractmethod
     async def subscribe_to_channel(self, channel: str) -> Any:
         """Subscribe to a channel and return a listener."""
         pass
@@ -49,6 +49,18 @@ class LlmProvider(ABC):
 
 class AudioProvider(ABC):
     """Interface for Audio/WebRTC (LiveKit)."""
+
     @abstractmethod
-    async def stream_audio(self, text: str, voice_id: str) -> None:
+    async def start_session(self, room_id: str) -> None:
+        """Starts the LiveKit session/job."""
+        pass
+
+    @abstractmethod
+    async def send_audio_chunk(self, chunk: bytes) -> None:
+        """Sends an audio chunk to the stream."""
+        pass
+
+    @abstractmethod
+    async def on_user_speech(self, callback: Callable) -> None:
+        """Registers a callback for when user speech is detected."""
         pass
